@@ -8,6 +8,8 @@ this is when the admin/tools framework first appeared.
 
 https://gitorious.org/moodle-tool_uploadcoursecategory
 
+There is also a bulk course upload function available at https://gitorious.org/moodle-tool_uploadcourse
+
 This takes CSV files as input and enables override or augmentation
 with default parameter values.
 
@@ -70,7 +72,6 @@ https://gitorious.org/pla-udi
 and
 https://gitorious.org/pla-udi/mle_ide_tools
 
-There is also a bulk course upload function available at https://gitorious.org/moodle-tool_uploadcourse
 
 Copyright (C) Piers Harding 2012 and beyond, All rights reserved
 
