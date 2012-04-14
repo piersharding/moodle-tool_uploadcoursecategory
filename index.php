@@ -218,6 +218,7 @@ if ($formdata = $mform2->is_cancelled()) {
             }
         }
         // walk the hierachy
+        $error = false;
         if (count($categories) > 0) {
             foreach ($categories as $cat) {
                 $cat = trim($cat);
@@ -231,6 +232,10 @@ if ($formdata = $mform2->is_cancelled()) {
                 }
                 $coursecategory->parent = $category->id;
             }
+        }
+        if ($error) {
+            $coursecategorieserrors++;
+            continue;
         }
 
         if ($optype == CC_COURSE_ADDNEW or $optype == CC_COURSE_ADDINC) {
@@ -279,9 +284,11 @@ if ($formdata = $mform2->is_cancelled()) {
                 $error = true;
             }
         }
+        $categories[]= $coursecategory->name;
+        $newname = implode('/', $categories);
 
         // notify about any name changes
-        if ($originalname !== $coursecategory->name) {
+        if ($originalname !== $newname) {
             $upt->track('name', '', 'normal', false); // clear previous
             $upt->track('name', s($originalname).'-->'.s($coursecategory->name), 'info');
         } else {
