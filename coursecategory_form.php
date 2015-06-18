@@ -54,7 +54,7 @@ class admin_uploadcoursecategory_form1 extends moodleform {
             $mform->setDefault('delimiter_name', 'comma');
         }
 
-        $choices = textlib::get_encodings();
+        $choices = core_text::get_encodings();
         $mform->addElement('select', 'encoding', get_string('encoding', 'tool_uploadcoursecategory'), $choices);
         $mform->setDefault('encoding', 'UTF-8');
 
@@ -203,8 +203,8 @@ class admin_uploadcoursecategory_form2 extends moodleform {
                $errors['cctype'] = get_string('missingfield', 'error', 'name');
             }
             if (!in_array('description', $columns)) {
-                if (isset($errors['cctype'])) {
-                    $errors['cctype'] .= ' ';
+                if (!isset($errors['cctype'])) {
+                    $errors['cctype'] = ' ';
                 }
                 $errors['cctype'] .= get_string('missingfield', 'error', 'description');
             }

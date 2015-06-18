@@ -40,8 +40,7 @@ raise_memory_limit(MEMORY_HUGE);
 
 require_login();
 admin_externalpage_setup('tooluploadcoursecategory');
-$context = get_system_context();
-require_capability('moodle/category:manage', $context);
+require_capability('moodle/category:manage', context_system::instance());
 
 $strcoursecategoryrenamed             = get_string('coursecategoryrenamed', 'tool_uploadcoursecategory');
 $strcoursecategorynotrenamedexists    = get_string('coursecategorynotrenamedexists', 'tool_uploadcoursecategory');
@@ -185,18 +184,18 @@ if ($formdata = $mform2->is_cancelled()) {
                 $upt->track($key, s($value), 'normal');
             }
         }
-        
+
         if (!isset($coursecategory->name)) {
             // prevent warnings bellow
             $coursecategory->name = '';
         }
-        
+
         // normalize name
         $originalname = $coursecategory->name;
         if ($standardnames) {
             $coursecategory->name = clean_param($coursecategory->name, PARAM_MULTILANG);
         }
-        
+
         // make sure we really have name
         if (empty($coursecategory->name)) {
             $upt->track('status', get_string('missingfield', 'error', 'name'), 'error');
@@ -204,7 +203,7 @@ if ($formdata = $mform2->is_cancelled()) {
             $coursecategorieserrors++;
             continue;
         }
-        
+
         // validate category parent
         $coursecategory->pathname = $coursecategory->name;
         $categories = explode('/', $coursecategory->name);
@@ -326,7 +325,8 @@ if ($formdata = $mform2->is_cancelled()) {
             }
             if ($existingcategory) {
                 require_capability('moodle/category:manage', get_category_or_system_context((int)$existingcategory->parent));
-                category_delete_full($existingcategory, false);
+                $deletecat = coursecat::get($existingcategory->id, MUST_EXIST);
+                $deletecat->delete_full(false);
                 $upt->track('status', $strcoursecategorydeleted);
                 $deletes++;
             } else {
@@ -351,7 +351,7 @@ if ($formdata = $mform2->is_cancelled()) {
                 $renameerrors++;
                 continue;
             }
-            
+
             // validate category parent
             $categories = explode('/', $coursecategory->oldname);
             $coursecategory->oldparent = 0;
@@ -385,7 +385,7 @@ if ($formdata = $mform2->is_cancelled()) {
                 $oldname = $coursecategory->oldname;
             }
 
-            
+
             // no guessing when looking for old name, it must be exact match
             if ($oldcoursecategory = $DB->get_record('course_categories', array('name'=>trim($coursecategory->oldname), 'parent' => $coursecategory->oldparent))) {
                 $upt->track('id', $oldcoursecategory->id, 'normal', false);
@@ -397,8 +397,8 @@ if ($formdata = $mform2->is_cancelled()) {
                     $parent_cat = $DB->get_record('course_categories', array('id' => $coursecategory->parent));
                     $coursecategory->id = $oldcoursecategory->id;
                     move_category($coursecategory, $parent_cat);
-                    $existingcategory->context = get_context_instance(CONTEXT_COURSECAT, $oldcoursecategory->id);
-                    mark_context_dirty($existingcategory->context->path);
+                    $existingcategory->context = context_coursecat::instance($oldcoursecategory->id);
+                    $existingcategory->context->mark_dirty();
                 }
                 $upt->track('name', '', 'normal', false); // clear previous
                 $upt->track('name', s($oldname).'-->'.s($coursecategory->name), 'info');
@@ -452,12 +452,12 @@ if ($formdata = $mform2->is_cancelled()) {
         if ($skip) {
             continue;
         }
-        
+
         if ($existingcategory) {
             $coursecategory->id = $existingcategory->id;
             require_capability('moodle/category:manage', get_category_or_system_context((int)$existingcategory->parent));
 
-            $upt->track('name', html_writer::link(new moodle_url('/course/category.php', array('id'=>$existingcategory->id)), s($existingcategory->name)), 'normal', false);
+            $upt->track('name', html_writer::link(new moodle_url('/course/index.php', array('categoryid'=>$existingcategory->id)), s($existingcategory->name)), 'normal', false);
 
             $existingcategory->timemodified = time();
             // do NOT mess with timecreated or firstaccess here!
@@ -499,8 +499,8 @@ if ($formdata = $mform2->is_cancelled()) {
             if ($doupdate) {
                 // we want only courses that were really updated
                 $DB->update_record('course_categories', $existingcategory);
-                $existingcategory->context = get_context_instance(CONTEXT_COURSECAT, $existingcategory->id);
-                mark_context_dirty($existingcategory->context->path);
+                $existingcategory->context = context_coursecat::instance($existingcategory->id);
+                $existingcategory->context->mark_dirty();
                 fix_course_sortorder();
                 $upt->track('status', $strcoursecategoryupdated);
                 $coursecategoriesupdated++;
@@ -535,8 +535,8 @@ if ($formdata = $mform2->is_cancelled()) {
             try {
                 $coursecategory->sortorder = 999;
                 $coursecategory->id = $DB->insert_record('course_categories', $coursecategory);
-                $coursecategory->context = get_context_instance(CONTEXT_COURSECAT, $coursecategory->id);
-                mark_context_dirty($coursecategory->context->path);
+                $coursecategory->context = context_coursecat::instance($coursecategory->id);
+                $coursecategory->context->mark_dirty();
                 fix_course_sortorder();
             }
             catch (moodle_exception $e) {
@@ -545,7 +545,7 @@ if ($formdata = $mform2->is_cancelled()) {
                 $skip = true;
                 continue;
             }
-            $upt->track('name', html_writer::link(new moodle_url('/course/category.php', array('id'=>$coursecategory->id)), s($coursecategory->name)), 'normal', false);
+            $upt->track('name', html_writer::link(new moodle_url('/course/index.php', array('categoryid'=>$coursecategory->id)), s($coursecategory->name)), 'normal', false);
 
             $upt->track('status', $strcoursecategoryadded);
             $upt->track('id', $coursecategory->id, 'normal', false);
