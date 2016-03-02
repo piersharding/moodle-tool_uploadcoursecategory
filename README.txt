@@ -19,9 +19,9 @@ General installation proceedures are here:
 http://docs.moodle.org/20/en/Installing_contributed_modules_or_plugins
 
 The basic process is:
-Download https://gitorious.org/moodle-tool_uploadcoursecategory/moodle-tool_uploadcoursecategory/archive-tarball/master
-unpack the file (probably called master) with tar -xzvf master
-This will give you a directory called moodle-tool_uploadcoursecategory-moodle-tool_uploadcoursecategory
+Download from the releases page eg: https://github.com/piersharding/moodle-tool_uploadcoursecategory/releases/tag/Moodle3.x
+unpack the file with unzip
+This will give you a directory called uploadcoursecategory
 Move this directory and rename it into it's final position:
 mv moodle-tool_uploadcoursecategory-moodle-tool_uploadcoursecategory <Moodle dirroot>/admin/tool/uploadcoursecategory
 
@@ -66,7 +66,7 @@ category hierarchy needs to be specified as a '/' delimited string eg:
 
 
 This was inspired in part by a need for a complimentary function for uploading
-courses (as for users) for the the NZ MLE tools for Identity and 
+courses (as for users) for the the NZ MLE tools for Identity and
 Access Managment (synchronising users with the School SMS):
 https://gitorious.org/pla-udi
 and
