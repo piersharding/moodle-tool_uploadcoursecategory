@@ -17,14 +17,11 @@
 /**
  * Bulk course registration functions
  *
- * @package    tool
- * @subpackage uploadcoursecategory
+ * @package    tool_uploadcoursecategory
  * @copyright  2004 onwards Martin Dougiamas (http://dougiamas.com)
  * @copyright  2012 Piers Harding
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-defined('MOODLE_INTERNAL') || die();
 
 define('CC_COURSE_ADDNEW', 0);
 define('CC_COURSE_ADDINC', 1);
@@ -56,8 +53,10 @@ define('CC_PWRESET_ALL', 2);
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class cc_progress_tracker {
+    /** @var array $_row - list of table rows. */
     private $_row;
-    public $columns = array('status', 'line', 'id', 'name', 'idnumber', 'description', 'oldname', 'deleted');
+    /** @var array $columns - list of table columns. */
+    public $columns = ['status', 'line', 'id', 'name', 'idnumber', 'description', 'oldname', 'deleted'];
 
     /**
      * Print table header.
@@ -65,7 +64,8 @@ class cc_progress_tracker {
      */
     public function start() {
         $ci = 0;
-        echo '<table id="ccresults" class="generaltable boxaligncenter flexible-wrap" summary="'.get_string('uploadcoursecategoriesresult', 'tool_uploadcoursecategory').'">';
+        echo '<table id="ccresults" class="generaltable boxaligncenter flexible-wrap" summary="'
+            .get_string('uploadcoursecategoriesresult', 'tool_uploadcoursecategory').'">';
         echo '<tr class="heading r0">';
         echo '<th class="header c'.$ci++.'" scope="col">'.get_string('status').'</th>';
         echo '<th class="header c'.$ci++.'" scope="col">'.get_string('cccsvline', 'tool_uploadcoursecategory').'</th>';
@@ -84,19 +84,19 @@ class cc_progress_tracker {
      * @return void
      */
     public function flush() {
-        if (empty($this->_row) or empty($this->_row['line']['normal'])) {
-            // Nothing to print - each line has to have at least number
-            $this->_row = array();
+        if (empty($this->_row) || empty($this->_row['line']['normal'])) {
+            // Nothing to print - each line has to have at least number.
+            $this->_row = [];
             foreach ($this->columns as $col) {
-                $this->_row[$col] = array('normal'=>'', 'info'=>'', 'warning'=>'', 'error'=>'');
+                $this->_row[$col] = ['normal' => '', 'info' => '', 'warning' => '', 'error' => ''];
             }
             return;
         }
         $ci = 0;
         $ri = 1;
         echo '<tr class="r'.$ri.'">';
-        foreach ($this->_row as $key=>$field) {
-            foreach ($field as $type=>$content) {
+        foreach ($this->_row as $key => $field) {
+            foreach ($field as $type => $content) {
                 if ($field[$type] !== '') {
                     $field[$type] = '<span class="cc'.$type.'">'.$field[$type].'</span>';
                 } else {
@@ -113,7 +113,7 @@ class cc_progress_tracker {
         }
         echo '</tr>';
         foreach ($this->columns as $col) {
-            $this->_row[$col] = array('normal'=>'', 'info'=>'', 'warning'=>'', 'error'=>'');
+            $this->_row[$col] = ['normal' => '', 'info' => '', 'warning' => '', 'error' => ''];
         }
     }
 
@@ -127,7 +127,7 @@ class cc_progress_tracker {
      */
     public function track($col, $msg, $level = 'normal', $merge = true) {
         if (empty($this->_row)) {
-            $this->flush(); //init arrays
+            $this->flush(); // Init arrays.
         }
         if (!in_array($col, $this->columns)) {
             debugging('Incorrect column:'.$col);
@@ -135,7 +135,7 @@ class cc_progress_tracker {
         }
         if ($merge) {
             if ($this->_row[$col][$level] != '') {
-                $this->_row[$col][$level] .='<br />';
+                $this->_row[$col][$level] .= '<br />';
             }
             $this->_row[$col][$level] .= $msg;
         } else {
@@ -144,7 +144,7 @@ class cc_progress_tracker {
     }
 
     /**
-     * Print the table end
+     * Print the table end.
      * @return void
      */
     public function close() {
@@ -167,31 +167,31 @@ function cc_validate_coursecategory_upload_columns(csv_import_reader $cir, $stdf
     if (empty($columns)) {
         $cir->close();
         $cir->cleanup();
-        print_error('cannotreadtmpfile', 'error', $returnurl);
+        throw new moodle_exception('cannotreadtmpfile', 'error', $returnurl);
     }
     if (count($columns) < 2) {
         $cir->close();
         $cir->cleanup();
-        print_error('csvfewcolumns', 'error', $returnurl);
+        throw new moodle_exception('csvfewcolumns', 'error', $returnurl);
     }
 
-    // test columns
-    $processed = array();
-    foreach ($columns as $key=>$unused) {
+    // Test columns.
+    $processed = [];
+    foreach ($columns as $key => $unused) {
         $field = $columns[$key];
         $lcfield = core_text::strtolower($field);
-        if (in_array($field, $stdfields) or in_array($lcfield, $stdfields)) {
-            // standard fields are only lowercase
+        if (in_array($field, $stdfields) || in_array($lcfield, $stdfields)) {
+            // Standard fields are only lowercase.
             $newfield = $lcfield;
         } else {
             $cir->close();
             $cir->cleanup();
-            print_error('invalidfieldname', 'error', $returnurl, $field);
+            throw new moodle_exception('invalidfieldname', 'error', $returnurl, $field);
         }
         if (in_array($newfield, $processed)) {
             $cir->close();
             $cir->cleanup();
-            print_error('duplicatefieldname', 'error', $returnurl, $newfield);
+            throw new moodle_exception('duplicatefieldname', 'error', $returnurl, $newfield);
         }
         $processed[$key] = $newfield;
     }
@@ -201,23 +201,23 @@ function cc_validate_coursecategory_upload_columns(csv_import_reader $cir, $stdf
 
 /**
  * Increments name - increments trailing number or adds it if not present.
- * Varifies that the new name does not exist yet
+ * Varifies that the new name does not exist yet.
  * @param string $name
  * @return incremented name which does not exist yet
  */
 function cc_increment_name($name) {
     global $DB, $CFG;
-    // make sure we get just the leaf of the parent/category tree
+    // Make sure we get just the leaf of the parent/category tree.
     $categories = explode('/', $name);
     $name = array_pop($categories);
 
     if (!preg_match_all('/(.*?)([0-9]+)$/', $name, $matches)) {
         $name = $name.'2';
     } else {
-        $name = $matches[1][0].($matches[2][0]+1);
+        $name = $matches[1][0].($matches[2][0] + 1);
     }
 
-    if ($DB->record_exists('course_categories', array('name'=>$name))) {
+    if ($DB->record_exists('course_categories', ['name' => $name])) {
         return cc_increment_name($name);
     } else {
         return $name;
@@ -236,10 +236,10 @@ function cc_increment_idnumber($idnumber) {
     if (!preg_match_all('/(.*?)([0-9]+)$/', $idnumber, $matches)) {
         $idnumber = $idnumber.'2';
     } else {
-        $idnumber = $matches[1][0].($matches[2][0]+1);
+        $idnumber = $matches[1][0].($matches[2][0] + 1);
     }
 
-    if ($DB->record_exists('course_categories', array('idnumber'=>$idnumber))) {
+    if ($DB->record_exists('course_categories', ['idnumber' => $idnumber])) {
         return cc_increment_idnumber($idnumber);
     } else {
         return $idnumber;
@@ -248,13 +248,13 @@ function cc_increment_idnumber($idnumber) {
 
 /**
  * Check if default field contains templates and apply them.
- * @param string template - potential tempalte string
- * @param object course object- we need coursename, firstname and lastname
+ * @param string $template - potential tempalte string
+ * @param object $course - we need coursename, firstname and lastname
  * @return string field value
  */
 function cc_process_template($template, $course) {
     if (is_array($template)) {
-        // hack for for support of text editors with format
+        // Hack for for support of text editors with format.
         $t = $template['text'];
     } else {
         $t = $template;
@@ -263,16 +263,16 @@ function cc_process_template($template, $course) {
         return $template;
     }
 
-    $name        = isset($course->name) ? $course->name  : '';
+    $name        = isset($course->name) ? $course->name : '';
     $description = isset($course->description) ? $course->description : '';
-    $idnumber    = isset($course->idnumber) ? $course->idnumber  : '';
+    $idnumber    = isset($course->idnumber) ? $course->idnumber : '';
 
     $callback = partial('cc_process_template_callback', $name, $description, $idnumber);
 
     $result = preg_replace_callback('/(?<!%)%([+-~])?(\d)*([flu])/', $callback, $t);
 
     if (is_null($result)) {
-        return $template; //error during regex processing??
+        return $template; // Error during regex processing?
     }
 
     if (is_array($template)) {
@@ -285,6 +285,11 @@ function cc_process_template($template, $course) {
 
 /**
  * Internal callback function.
+ * @param string $name
+ * @param string $description
+ * @param string $idnumber
+ * @param object $block
+ * @return string $repl
  */
 function cc_process_template_callback($name, $description, $idnumber, $block) {
 

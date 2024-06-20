@@ -17,8 +17,7 @@
 /**
  * Strings for component 'tool_uploadcoursecategory', language 'en', branch 'MOODLE_22_STABLE'
  *
- * @package    tool
- * @subpackage uploadcoursecategory
+ * @package    tool_uploadcoursecategory
  * @copyright  2011 Petr Skoda {@link http://skodak.org}
  * @copyright  2012 Piers Harding
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -56,7 +55,7 @@ $string['uploadcoursecategories_help'] = 'Courses may be uploaded (and optionall
 * Each record is a series of data separated by commas (or other delimiters)
 * The first record contains a list of fieldnames defining the format of the rest of the file
 * Required fieldnames are coursename, password, firstname, lastname, email';
-$string['coursecategoryavailablenot'] = 'Catgeory hidden';
+$string['coursecategoryavailablenot'] = 'Category hidden';
 $string['coursecategoryavailability'] = 'Course category availabililty';
 $string['coursecategoryavailability_help'] = 'Set whether the categories default to visible or hidden';
 $string['coursecategoryavailable'] = 'Category available';
@@ -121,4 +120,3 @@ $string['coursetemplatename'] = 'Course template name';
 $string['coursetemplatename_help'] = 'Select an existing course name to use as a template for the creation of all Course categories.';
 $string['templatefile'] = 'Template backup file';
 $string['invalidbackupfile'] = 'Invalid backup file';
-
