@@ -17,15 +17,13 @@
 /**
  * Plugin version info
  *
- * @package    tool
- * @subpackage uploadcoursecategory
+ * @package    tool_uploadcoursecategory
  * @copyright  2011 Petr Skoda {@link http://skodak.org}
  * @copyright  2012 Piers Harding
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version   = 2011091700; // The current plugin version (Date: YYYYMMDDXX)
-$plugin->requires  = 2011091600; // Requires this Moodle version
-$plugin->component = 'tool_uploadcoursecategory'; // Full name of the plugin (used for diagnostics)
-
+$plugin->version   = 2024062001;
+$plugin->requires  = 2022041900;
+$plugin->component = 'tool_uploadcoursecategory';
